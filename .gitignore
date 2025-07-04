@@ -1,0 +1,49 @@
+# Java & Spring Boot
+target/
+*.class
+*.jar
+*.war
+*.log
+
+# Application configuration (DO NOT push real credentials)
+src/main/resources/application.yaml
+src/main/resources/application.properties
+.env
+
+# Maven wrapper
+.mvn/wrapper/maven-wrapper.jar
+
+# Eclipse / Spring Tool Suite (STS)
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+# IntelliJ IDEA
+.idea
+*.iws
+*.iml
+*.ipr
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+# VS Code
+.vscode/
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Postman temp files
+*.postman_collection.json.backup
