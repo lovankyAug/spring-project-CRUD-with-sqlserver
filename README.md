@@ -63,7 +63,7 @@ This is a project I built while studying the Spring Framework and learning about
     change example-id by an id already exist.
 4. Update user information
 - method: POST 
-- url: http://localhost:8080/identity/user-update/example-id
+- url: http://localhost:8080/identity/users/example-id
     change example-id by an id already exist.
 - body(JSON):
 - ``{

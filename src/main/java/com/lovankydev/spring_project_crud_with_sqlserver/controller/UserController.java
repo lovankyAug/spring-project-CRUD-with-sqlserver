@@ -4,6 +4,7 @@ import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserCreatio
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserUpdationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.entity.User;
 import com.lovankydev.spring_project_crud_with_sqlserver.service.UserService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +20,7 @@ public class UserController {
 
 //Create new user
     @PostMapping("/users")
-    User userCreationController(@RequestBody UserCreationRequest request){
+    User userCreationController(@RequestBody @Valid UserCreationRequest request){
         return userService.userCreationService(request) ;
     }
 
