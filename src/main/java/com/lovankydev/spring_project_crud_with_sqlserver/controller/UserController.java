@@ -1,5 +1,6 @@
 package com.lovankydev.spring_project_crud_with_sqlserver.controller;
 
+import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.ApiRespone;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserCreationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserUpdationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.entity.User;
@@ -20,8 +21,10 @@ public class UserController {
 
 //Create new user
     @PostMapping("/users")
-    User userCreationController(@RequestBody @Valid UserCreationRequest request){
-        return userService.userCreationService(request) ;
+    ApiRespone<User> userCreationController(@RequestBody @Valid UserCreationRequest request){
+        ApiRespone<User> apiRespone  = new ApiRespone<User>();
+        apiRespone.setResult(userService.userCreationService(request));
+        return apiRespone ;
     }
 
 //    Get user all user

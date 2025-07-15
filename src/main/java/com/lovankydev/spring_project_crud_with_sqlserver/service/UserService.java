@@ -4,6 +4,8 @@ package com.lovankydev.spring_project_crud_with_sqlserver.service;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserCreationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserUpdationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.entity.User;
+import com.lovankydev.spring_project_crud_with_sqlserver.exception.AppException;
+import com.lovankydev.spring_project_crud_with_sqlserver.exception.ErrorCode;
 import com.lovankydev.spring_project_crud_with_sqlserver.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,7 +21,7 @@ public class UserService {
     public User userCreationService(UserCreationRequest request) {
         User user = new User();
         if (userRepository.existsByUserName(request.getUserName())) {
-            throw new RuntimeException("Username was used!");
+            throw new AppException(ErrorCode.USER_EXISTED);
         }
         user.setUserName(request.getUserName());
         user.setPassword(request.getPassword());
