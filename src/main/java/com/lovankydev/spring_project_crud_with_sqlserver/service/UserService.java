@@ -37,7 +37,7 @@ public class UserService {
     }
 
     public User getUserByIdService(String id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User was not found!"));
+        return userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
 
     }
 
@@ -45,7 +45,7 @@ public class UserService {
         User user = new User();
 
         if (!userRepository.existsById(id)) {
-            throw new RuntimeException("User is not exits please check again!");
+            throw  new AppException(ErrorCode.USER_NOT_FOUND);
         }
         user.setId(id);
         user.setUserName(request.getUserName());

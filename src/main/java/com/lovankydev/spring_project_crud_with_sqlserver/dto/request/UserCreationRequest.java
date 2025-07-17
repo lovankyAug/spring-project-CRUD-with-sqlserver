@@ -10,7 +10,7 @@ public class UserCreationRequest {
     @Size(min = 3, max = 20, message = "Username requires from 3 to 20 letters for an username. ")
     private String userName ;
 
-    @Size(min = 8, message = "Password requires at least 8 letters.")
+    @Size(min = 8, message = "PASSWORD_INVALID")
     private String password ;
     private LocalDate dob ;
     private String address ;

@@ -9,25 +9,37 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-//    Handling RuntimeException for request
+    //    Handling RuntimeException for request
     @ExceptionHandler(value = RuntimeException.class)
-    ResponseEntity<ApiRespone> handlingRuntimeException(RuntimeException exception){
-        ApiRespone apiRespone = new ApiRespone() ;
+    ResponseEntity<ApiRespone> handlingRuntimeException(RuntimeException exception) {
+        ApiRespone apiRespone = new ApiRespone();
         apiRespone.setCode(1001);
         apiRespone.setMessage(exception.getMessage());
-        return ResponseEntity.badRequest().body(apiRespone) ;
+        return ResponseEntity.badRequest().body(apiRespone);
     }
 
-    @ExceptionHandler(value = MethodArgumentNotValidException.class )
-    ResponseEntity<String> handlingMethodArgumentNotValidException(MethodArgumentNotValidException exception){
-        return ResponseEntity.badRequest().body(exception.getFieldError().getDefaultMessage()) ;
+    @ExceptionHandler(value = MethodArgumentNotValidException.class)
+    ResponseEntity<ApiRespone> handlingMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+       ApiRespone apiRespone = new ApiRespone() ;
+       apiRespone.setCode(ErrorCode.PASSWORD_INVALID.getCode());
+       apiRespone.setMessage(ErrorCode.PASSWORD_INVALID.getMessage());
+        return ResponseEntity.badRequest().body(apiRespone);
     }
 
     @ExceptionHandler(value = AppException.class)
-    ResponseEntity<ApiRespone> handlingAppException(AppException exception){
-        ApiRespone apiRespone = new ApiRespone() ;
+    ResponseEntity<ApiRespone> handlingAppException(AppException exception) {
+        ApiRespone apiRespone = new ApiRespone();
         apiRespone.setCode(exception.getErrorCode().getCode());
         apiRespone.setMessage(exception.getErrorCode().getMessage());
-        return ResponseEntity.badRequest().body(apiRespone) ;
+        return ResponseEntity.badRequest().body(apiRespone);
+    }
+
+    @ExceptionHandler(value = Exception.class)
+    ResponseEntity<ApiRespone> handlingUncategorizedException(Exception exception) {
+
+        ApiRespone apiRespone = new ApiRespone();
+        apiRespone.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
+        apiRespone.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
+        return ResponseEntity.badRequest().body(apiRespone);
     }
 }
