@@ -39,7 +39,7 @@ public class GlobalExceptionHandler {
 
         ApiRespone apiRespone = new ApiRespone();
         apiRespone.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
-        apiRespone.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
+        apiRespone.setMessage(exception.getMessage());
         return ResponseEntity.badRequest().body(apiRespone);
     }
 }
