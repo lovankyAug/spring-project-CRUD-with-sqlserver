@@ -1,13 +1,11 @@
 package com.lovankydev.spring_project_crud_with_sqlserver.entity;
 
 import jakarta.persistence.*;
-import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -15,16 +13,17 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
+@Builder
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     String id;
-
     @Column(nullable = false, unique = true)
     String userName;
     String password;
     String email;
     LocalDate dob;
     String address;
+    Set<String> roles; // Assuming roles is a Set of Strings, adjust as necessary for your use case
 
 }

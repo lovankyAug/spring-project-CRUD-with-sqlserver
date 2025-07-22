@@ -6,9 +6,13 @@ import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserUpdatio
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.UserResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.entity.User;
 import com.lovankydev.spring_project_crud_with_sqlserver.service.UserService;
+import com.nimbusds.jose.proc.SecurityContext;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -16,6 +20,7 @@ import java.util.List;
 @RestController
 @RequiredArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
+@Slf4j
 public class UserController {
 
     UserService userService ;
@@ -23,6 +28,7 @@ public class UserController {
 //Create new user
     @PostMapping("/users")
     ApiResponse<User> userCreationController(@RequestBody @Valid UserCreationRequest request){
+
         ApiResponse<User> apiResponse = new ApiResponse<User>();
         apiResponse.setResult(userService.userCreationService(request));
         return apiResponse;
@@ -31,6 +37,12 @@ public class UserController {
 //    Get user all user
     @GetMapping("/users")
     List<User> getUserListController(){
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication() ;
+
+        log.info("User creation request received from user: {}", authentication.getName());
+        authentication.getAuthorities().forEach( athority -> {
+            log.info("Roles: {}", athority.getAuthority());
+        });
         return userService.getUserList();
     }
 
