@@ -11,6 +11,8 @@ import com.lovankydev.spring_project_crud_with_sqlserver.mapper.UserMapper;
 import com.lovankydev.spring_project_crud_with_sqlserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,7 +31,8 @@ public class UserService {
             throw new AppException(ErrorCode.USER_EXISTED);
         }
         User user = userMapper.toUser(request);
-
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
         return userRepository.save(user);
     }
 
@@ -54,5 +57,12 @@ public class UserService {
         if (userRepository.existsById(id)) {
             userRepository.deleteById(id);
         }
+    }
+    public UserResponse getUserByUserNameService(String userName) {
+        User user = userRepository.findByUserName(userName);
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        return userMapper.toUserResponse(user);
     }
 }

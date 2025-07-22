@@ -1,6 +1,6 @@
 package com.lovankydev.spring_project_crud_with_sqlserver.exception;
 
-import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.ApiRespone;
+import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.ApiResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -9,37 +9,29 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 @ControllerAdvice
 public class GlobalExceptionHandler {
 
-    //    Handling RuntimeException for request
-    @ExceptionHandler(value = RuntimeException.class)
-    ResponseEntity<ApiRespone> handlingRuntimeException(RuntimeException exception) {
-        ApiRespone apiRespone = new ApiRespone();
-        apiRespone.setCode(1001);
-        apiRespone.setMessage(exception.getMessage());
-        return ResponseEntity.badRequest().body(apiRespone);
-    }
 
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
-    ResponseEntity<ApiRespone> handlingMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
-       ApiRespone apiRespone = new ApiRespone() ;
-       apiRespone.setCode(ErrorCode.PASSWORD_INVALID.getCode());
-       apiRespone.setMessage(ErrorCode.PASSWORD_INVALID.getMessage());
-        return ResponseEntity.badRequest().body(apiRespone);
+    ResponseEntity<ApiResponse> handlingMethodArgumentNotValidException(MethodArgumentNotValidException exception) {
+       ApiResponse apiResponse = new ApiResponse() ;
+       apiResponse.setCode(ErrorCode.PASSWORD_INVALID.getCode());
+       apiResponse.setMessage(ErrorCode.PASSWORD_INVALID.getMessage());
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 
     @ExceptionHandler(value = AppException.class)
-    ResponseEntity<ApiRespone> handlingAppException(AppException exception) {
-        ApiRespone apiRespone = new ApiRespone();
-        apiRespone.setCode(exception.getErrorCode().getCode());
-        apiRespone.setMessage(exception.getErrorCode().getMessage());
-        return ResponseEntity.badRequest().body(apiRespone);
+    ResponseEntity<ApiResponse> handlingAppException(AppException exception) {
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setCode(exception.getErrorCode().getCode());
+        apiResponse.setMessage(exception.getErrorCode().getMessage());
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 
     @ExceptionHandler(value = Exception.class)
-    ResponseEntity<ApiRespone> handlingUncategorizedException(Exception exception) {
+    ResponseEntity<ApiResponse> handlingUncategorizedException(Exception exception) {
 
-        ApiRespone apiRespone = new ApiRespone();
-        apiRespone.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
-        apiRespone.setMessage(exception.getMessage());
-        return ResponseEntity.badRequest().body(apiRespone);
+        ApiResponse apiResponse = new ApiResponse();
+        apiResponse.setCode(ErrorCode.UNCATEGORIZED_EXCEPTION.getCode());
+        apiResponse.setMessage(ErrorCode.UNCATEGORIZED_EXCEPTION.getMessage());
+        return ResponseEntity.badRequest().body(apiResponse);
     }
 }

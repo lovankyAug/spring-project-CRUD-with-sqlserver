@@ -1,17 +1,14 @@
 package com.lovankydev.spring_project_crud_with_sqlserver.controller;
 
-import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.ApiRespone;
+import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.ApiResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserCreationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserUpdationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.UserResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.entity.User;
-import com.lovankydev.spring_project_crud_with_sqlserver.exception.ErrorCode;
 import com.lovankydev.spring_project_crud_with_sqlserver.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.repository.query.Param;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -21,15 +18,14 @@ import java.util.List;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
 
-
     UserService userService ;
 
 //Create new user
     @PostMapping("/users")
-    ApiRespone<User> userCreationController(@RequestBody @Valid UserCreationRequest request){
-        ApiRespone<User> apiRespone  = new ApiRespone<User>();
-        apiRespone.setResult(userService.userCreationService(request));
-        return apiRespone ;
+    ApiResponse<User> userCreationController(@RequestBody @Valid UserCreationRequest request){
+        ApiResponse<User> apiResponse = new ApiResponse<User>();
+        apiResponse.setResult(userService.userCreationService(request));
+        return apiResponse;
     }
 
 //    Get user all user
@@ -52,8 +48,8 @@ public class UserController {
 
 //delete user
     @DeleteMapping("/users/{userID}")
-    ApiRespone<String> deleteUserController(@PathVariable("userID")String userID){
+    ApiResponse<String> deleteUserController(@PathVariable("userID")String userID){
         userService.deleteUserService(userID);
-        return new ApiRespone<>(1000, null, "Delete user successfully") ;
+        return new ApiResponse<>(1000, null, "Delete user successfully") ;
     }
 }

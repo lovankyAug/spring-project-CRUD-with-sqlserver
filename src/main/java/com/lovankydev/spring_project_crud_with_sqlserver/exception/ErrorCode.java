@@ -4,8 +4,8 @@ public enum ErrorCode {
     USER_EXISTED(1001, "User has existed already. Please choose another user name."),
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized exception"),
     USER_NOT_FOUND(1002, "User is not found. Please check your ID again"),
-    PASSWORD_INVALID(1004, "Pass word must be at least 8 letters. Example: 12345abc#");
-
+    PASSWORD_INVALID(1004, "Pass word must be at least 8 letters. Example: 12345abc#"),
+    UNAUTHENTICATED(1005, "You are not authenticated. Please login again");
 
 
     ErrorCode(int code, String message) {

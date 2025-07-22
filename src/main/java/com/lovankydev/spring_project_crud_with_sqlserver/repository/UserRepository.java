@@ -9,4 +9,5 @@ public interface UserRepository extends JpaRepository<User, String> {
 
 //    Require username is unique
     boolean existsByUserName(String userName);
+    User findByUserName(String userName);
 }
