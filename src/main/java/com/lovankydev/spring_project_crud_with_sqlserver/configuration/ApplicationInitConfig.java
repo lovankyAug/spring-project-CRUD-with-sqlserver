@@ -18,6 +18,7 @@ import java.util.HashSet;
 @Slf4j
 @RequiredArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
+
 public class ApplicationInitConfig {
 
     PasswordEncoder passwordEncoder;

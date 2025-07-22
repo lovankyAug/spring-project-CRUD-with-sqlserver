@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -20,6 +21,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Value("${jwt.signerKey}")
@@ -30,9 +32,6 @@ public class SecurityConfig {
             "/auth/token",
             "/auth/introspect"
     };
-    private final String[] ADMIN_ENDPOINTS = {
-            "/users"
-    };
 
 
     // This method is used to configure the security filter chain for the application.
@@ -42,7 +41,6 @@ public class SecurityConfig {
         // Configure the security filter chain to allow public access to certain endpoints,
         httpSecurity.authorizeHttpRequests(request -> {
             request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll();
-            request.requestMatchers(HttpMethod.GET, ADMIN_ENDPOINTS).hasRole(Roles.ADMIN.name());
             request.anyRequest().authenticated() ;
         });
 

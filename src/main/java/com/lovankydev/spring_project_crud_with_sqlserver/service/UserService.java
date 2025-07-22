@@ -12,7 +12,11 @@ import com.lovankydev.spring_project_crud_with_sqlserver.mapper.UserMapper;
 import com.lovankydev.spring_project_crud_with_sqlserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
+import org.springframework.security.access.prepost.PostAuthorize;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -20,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.util.HashSet;
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
@@ -39,7 +44,7 @@ public class UserService {
 
         // Set roles for the user.
         HashSet<String> roles = new HashSet<>();
-        roles.add(Roles.USER.name()) ;
+        roles.add(Roles.USER.name());
         user.setRoles(roles);
 
         // Encrypt the password before saving.
@@ -49,11 +54,13 @@ public class UserService {
 
 
     // This method retrieves a list of all users.
+    @PreAuthorize("hasRole('ADMIN')")
     public List<User> getUserList() {
         return userRepository.findAll();
     }
 
     // This method retrieves a user by their ID.
+    @PostAuthorize("returnObject.userName == authentication.name or hasRole('ADMIN')")
     public UserResponse getUserByIdService(String id) {
         return userMapper.toUserResponse(userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND)));
 
@@ -84,6 +91,16 @@ public class UserService {
         return userMapper.toUserResponse(user);
     }
 
+    // This method retrieves the currently authenticated user's information.
+    public UserResponse getMyInfoService() {
+        String userName = SecurityContextHolder
+                .getContext().getAuthentication().getName();
+        User user = userRepository.findByUserName(userName);
+        if (user == null) {
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+        return userMapper.toUserResponse(user);
+    }
 
     @Bean
     PasswordEncoder passwordEncoder() {
