@@ -22,7 +22,7 @@ public class AuthenticationController {
 
 
     AuthenticationService authenticationService ;
-    @PostMapping("/login")
+    @PostMapping("/auth/token")
     public ApiResponse<AuthenticationResponse> login( @RequestBody AuthenticationRequest request) {
         ApiResponse<AuthenticationResponse> apiResponse = new ApiResponse<>();
         if(request != null){
@@ -33,7 +33,7 @@ public class AuthenticationController {
         return apiResponse ;
     }
 
-    @PostMapping("/introspect")
+    @PostMapping("/auth/introspect")
     public ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request) {
         ApiResponse<IntrospectResponse> apiResponse = new ApiResponse<>();
         try {
