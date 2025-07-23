@@ -47,8 +47,8 @@ public class SecurityConfig {
         // Configure the application to use JWT for authentication.
         httpSecurity.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
-                        .jwtAuthenticationConverter( jwtAuthenticationConverter())
-
+                        .jwtAuthenticationConverter( jwtAuthenticationConverter()))
+                        .authenticationEntryPoint( new JwtAuthenticationEntryPoint()
         ));
 
         // Disable CSRF protection for the application.
