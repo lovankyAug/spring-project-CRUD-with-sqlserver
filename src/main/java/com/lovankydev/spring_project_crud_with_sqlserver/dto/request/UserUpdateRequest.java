@@ -8,12 +8,13 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.FieldDefaults;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class UserUpdationRequest {
+public class UserUpdateRequest {
 
     @Size(min = 3, max = 20, message = "Username requires from 3 to 20 letters for an username. ")
     String userName;
@@ -23,5 +24,7 @@ public class UserUpdationRequest {
     LocalDate dob;
     String address;
     String email;
+
+    List<String> roles;
 
 }

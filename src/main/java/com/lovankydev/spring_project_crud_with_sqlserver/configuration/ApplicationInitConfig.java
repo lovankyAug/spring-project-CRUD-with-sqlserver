@@ -36,12 +36,12 @@ public class ApplicationInitConfig {
                 HashSet<String> roles = new HashSet<>();
                 roles.add(Roles.ADMIN.name());
 
-                User adminUser = User.builder()
-                        .userName("admin")
-                        .password(passwordEncoder.encode("admin123"))
-                        .roles(roles)
-                        .build();
-                userRepository.save(adminUser);
+//                User adminUser = User.builder()
+//                        .userName("admin")
+//                        .password(passwordEncoder.encode("admin123"))
+//                        .roles(roles)
+//                        .build();
+//                userRepository.save(adminUser);
                 log.warn("Admin user created with username: admin and password: admin123");
             }
         };

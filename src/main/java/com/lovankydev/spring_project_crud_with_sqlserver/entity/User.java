@@ -24,6 +24,7 @@ public class User {
     String email;
     LocalDate dob;
     String address;
-    Set<String> roles; // Assuming roles is a Set of Strings, adjust as necessary for your use case
+    @ManyToMany
+    Set<Role> roles; // Assuming roles is a Set of Strings, adjust as necessary for your use case
 
 }

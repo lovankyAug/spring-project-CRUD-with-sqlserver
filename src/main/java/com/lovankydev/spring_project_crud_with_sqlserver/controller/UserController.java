@@ -2,7 +2,7 @@ package com.lovankydev.spring_project_crud_with_sqlserver.controller;
 
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.ApiResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserCreationRequest;
-import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserUpdationRequest;
+import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserUpdateRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.UserResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.entity.User;
 import com.lovankydev.spring_project_crud_with_sqlserver.service.UserService;
@@ -47,7 +47,7 @@ public class UserController {
 
     // update user information
     @PutMapping("/users/{userID}")
-    UserResponse updateUserController(@PathVariable("userID") String id, @RequestBody UserUpdationRequest request) {
+    UserResponse updateUserController(@PathVariable("userID") String id, @RequestBody UserUpdateRequest request) {
         return userService.updateUserService(id, request);
     }
 
@@ -71,4 +71,5 @@ public class UserController {
         apiResponse.setResult(userService.getMyInfoService());
         return apiResponse;
     }
+
 }

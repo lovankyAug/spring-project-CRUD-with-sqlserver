@@ -15,10 +15,12 @@ import java.util.Set;
 @FieldDefaults(level = lombok.AccessLevel.PRIVATE)
 public class UserResponse{
 
+    String id;
     String userName;
     String email;
     LocalDate dob;
     String address;
-    Set<String> roles; // Assuming roles is a Set of Strings, adjust as necessary for your use case
+
+    Set<RoleResponse> roles; // Assuming roles is a Set of Strings, adjust as necessary for your use case
 
 }

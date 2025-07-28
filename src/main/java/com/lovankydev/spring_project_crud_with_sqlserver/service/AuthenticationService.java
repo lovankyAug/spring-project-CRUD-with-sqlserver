@@ -1,6 +1,5 @@
 package com.lovankydev.spring_project_crud_with_sqlserver.service;
 
-import aj.org.objectweb.asm.commons.TryCatchBlockSorter;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.AuthenticationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.IntrospectRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.AuthenticationResponse;
@@ -19,7 +18,6 @@ import lombok.experimental.FieldDefaults;
 import lombok.experimental.NonFinal;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -27,7 +25,6 @@ import org.springframework.util.CollectionUtils;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Collection;
 import java.util.Date;
 import java.util.StringJoiner;
 
@@ -41,7 +38,7 @@ public class AuthenticationService {
     PasswordEncoder passwordEncoder;
     @NonFinal
     @Value("${jwt.signerKey}")
-    protected String SIGNER_KEY ;
+    protected String SIGNER_KEY;
 
     // This method is used to authenticate a user by checking their username and password.
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -52,7 +49,7 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
         String token = generateToken(user);
-        return  AuthenticationResponse.builder()
+        return AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(authenticated)
                 .build();
@@ -65,21 +62,21 @@ public class AuthenticationService {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
         //Create a verifier with the same key used to sign the token
-        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes()) ;
+        JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
         //Parse the token
         SignedJWT signedJWT = SignedJWT.parse(token);
 
-        boolean verified = signedJWT.verify(verifier) ;
+        boolean verified = signedJWT.verify(verifier);
         // Check if the token is expired
         Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
 
         return IntrospectResponse.builder()
-                .valid(verified && expirationTime.after(new Date()) )
+                .valid(verified && expirationTime.after(new Date()))
                 .build();
     }
 
     // This method generates a JWT token for the user.
-    private String generateToken(User user ) {
+    private String generateToken(User user) {
 
         // Create the JWS header with the algorithm used for signing
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
@@ -88,7 +85,7 @@ public class AuthenticationService {
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .subject(user.getUserName())
                 .issuer("lovankydev.com")
-                .claim("scope", buildScope(user) )
+                .claim("scope", buildScope(user))
                 .expirationTime(new Date(
                         // Set the expiration time to 1 hour from now
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
@@ -112,9 +109,17 @@ public class AuthenticationService {
 
     // This method builds the scope string from the user's roles.
     String buildScope(User user) {
-        StringJoiner scope = new StringJoiner( " ");
-        if(!CollectionUtils.isEmpty(user.getRoles())) {
-           user.getRoles().forEach(s -> scope.add(s));
+        StringJoiner scope = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles().forEach(role -> {
+                scope.add("ROLE_" + role.getName());
+                if (!CollectionUtils.isEmpty(role.getPermissions())) {
+                    role.getPermissions()
+                            .forEach(permission -> {
+                                scope.add(permission.getName());
+                            });
+                }
+            });
         }
         return scope.toString().trim();
     }

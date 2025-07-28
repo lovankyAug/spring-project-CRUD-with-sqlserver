@@ -2,13 +2,14 @@ package com.lovankydev.spring_project_crud_with_sqlserver.service;
 
 
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserCreationRequest;
-import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserUpdationRequest;
+import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.UserUpdateRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.UserResponse;
+import com.lovankydev.spring_project_crud_with_sqlserver.entity.Role;
 import com.lovankydev.spring_project_crud_with_sqlserver.entity.User;
-import com.lovankydev.spring_project_crud_with_sqlserver.enums.Roles;
 import com.lovankydev.spring_project_crud_with_sqlserver.exception.AppException;
 import com.lovankydev.spring_project_crud_with_sqlserver.exception.ErrorCode;
 import com.lovankydev.spring_project_crud_with_sqlserver.mapper.UserMapper;
+import com.lovankydev.spring_project_crud_with_sqlserver.repository.RoleRepository;
 import com.lovankydev.spring_project_crud_with_sqlserver.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -23,6 +24,9 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -31,6 +35,7 @@ import java.util.List;
 public class UserService {
 
     UserRepository userRepository;
+    RoleRepository roleRepository;
     UserMapper userMapper;
     PasswordEncoder passwordEncoder = passwordEncoder();
 
@@ -43,9 +48,9 @@ public class UserService {
         User user = userMapper.toUser(request);
 
         // Set roles for the user.
-        HashSet<String> roles = new HashSet<>();
-        roles.add(Roles.USER.name());
-        user.setRoles(roles);
+//        HashSet<String> roles = new HashSet<>();
+//        roles.add(Roles.USER.name());
+//        user.setRoles(roles);
 
         // Encrypt the password before saving.
         user.setPassword(passwordEncoder.encode(request.getPassword()));
@@ -67,11 +72,15 @@ public class UserService {
     }
 
     // This method updates a user's information.
-    public UserResponse updateUserService(String id, UserUpdationRequest request) {
+    public UserResponse updateUserService(String id, UserUpdateRequest request) {
 
         User user = userRepository.findById(id).orElseThrow(() -> new AppException(ErrorCode.USER_NOT_FOUND));
-        System.out.println(user.getId());
+
         userMapper.updateUser(user, request);
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        List<Role> roles = roleRepository.findAllById(request.getRoles());
+        user.setRoles(new HashSet<>(roles));
+
         return userMapper.toUserResponse(userRepository.save(user));
     }
 
