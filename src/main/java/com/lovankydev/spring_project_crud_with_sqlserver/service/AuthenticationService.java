@@ -3,6 +3,7 @@ package com.lovankydev.spring_project_crud_with_sqlserver.service;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.AuthenticationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.IntrospectRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.InvalidatedTokenRequest;
+import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.RefreshRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.AuthenticationResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.IntrospectResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.entity.InvalidatedToken;
@@ -169,6 +170,35 @@ public class AuthenticationService {
         InvalidatedToken invalidatedToken = new InvalidatedToken(jit, expiryTime);
 
         invalidatedTokenRepository.save(invalidatedToken);
+
+    }
+
+    // This is the method for refresh token
+    public AuthenticationResponse refreshTokenService(RefreshRequest request) throws ParseException, JOSEException {
+
+        String token = request.getToken();
+
+        SignedJWT signedJWT = verifyToken(token);
+
+        String jit = signedJWT.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        String userName = signedJWT.getJWTClaimsSet().getSubject();
+
+        InvalidatedToken invalidatedToken = InvalidatedToken.builder()
+                .tokenId(jit)
+                .expiryTime(expiryTime)
+                .build();
+        invalidatedTokenRepository.save(invalidatedToken);
+
+        User user = userRepository.findByUserName(userName);
+        if(user == null){
+            throw new AppException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        return AuthenticationResponse.builder()
+                .token(generateToken(user))
+                .authenticated(true)
+                .build();
 
     }
 }
