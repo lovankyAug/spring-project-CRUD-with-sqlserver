@@ -2,11 +2,14 @@ package com.lovankydev.spring_project_crud_with_sqlserver.service;
 
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.AuthenticationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.IntrospectRequest;
+import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.InvalidatedTokenRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.AuthenticationResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.IntrospectResponse;
+import com.lovankydev.spring_project_crud_with_sqlserver.entity.InvalidatedToken;
 import com.lovankydev.spring_project_crud_with_sqlserver.entity.User;
 import com.lovankydev.spring_project_crud_with_sqlserver.exception.AppException;
 import com.lovankydev.spring_project_crud_with_sqlserver.exception.ErrorCode;
+import com.lovankydev.spring_project_crud_with_sqlserver.repository.InvalidatedTokenRepository;
 import com.lovankydev.spring_project_crud_with_sqlserver.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
@@ -24,9 +27,11 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
+import java.util.UUID;
 
 @Slf4j
 @Service
@@ -36,6 +41,8 @@ public class AuthenticationService {
 
     UserRepository userRepository;
     PasswordEncoder passwordEncoder;
+    InvalidatedTokenRepository invalidatedTokenRepository;
+
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
@@ -57,22 +64,46 @@ public class AuthenticationService {
 
     // This method is used to introspect a JWT token to check its validity and expiration.
     public IntrospectResponse introspectService(IntrospectRequest request) throws JOSEException, ParseException {
+
         String token = request.getToken();
+        boolean isValid = true;
+
+        try {
+            verifyToken(token);
+        }catch (AppException exception){
+            isValid = false;
+        }
+
+        return IntrospectResponse.builder()
+                .valid(isValid)
+                .build();
+    }
+
+
+    SignedJWT verifyToken(String token) throws JOSEException, ParseException {
         if (token == null || token.isEmpty()) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
+
+        //Parse the token
+        SignedJWT signedJWT =  SignedJWT.parse(token);
+
         //Create a verifier with the same key used to sign the token
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
-        //Parse the token
-        SignedJWT signedJWT = SignedJWT.parse(token);
 
         boolean verified = signedJWT.verify(verifier);
+
         // Check if the token is expired
         Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
 
-        return IntrospectResponse.builder()
-                .valid(verified && expirationTime.after(new Date()))
-                .build();
+        if(!(verified && expirationTime.after(new Date()))){
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+        }
+        if(invalidatedTokenRepository
+                .existsById(signedJWT.getJWTClaimsSet().getJWTID()))
+            throw new AppException(ErrorCode.UNAUTHENTICATED);
+
+        return signedJWT;
     }
 
     // This method generates a JWT token for the user.
@@ -86,6 +117,7 @@ public class AuthenticationService {
                 .subject(user.getUserName())
                 .issuer("lovankydev.com")
                 .claim("scope", buildScope(user))
+                .jwtID(UUID.randomUUID().toString())
                 .expirationTime(new Date(
                         // Set the expiration time to 1 hour from now
                         Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
@@ -122,5 +154,21 @@ public class AuthenticationService {
             });
         }
         return scope.toString().trim();
+    }
+
+
+    // This is the logout method service
+    public void logoutService(InvalidatedTokenRequest request) throws ParseException, JOSEException {
+
+        String token = request.getToken();
+        SignedJWT signedJWT = verifyToken(token);
+
+        String jit = signedJWT.getJWTClaimsSet().getJWTID();
+        Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+
+        InvalidatedToken invalidatedToken = new InvalidatedToken(jit, expiryTime);
+
+        invalidatedTokenRepository.save(invalidatedToken);
+
     }
 }

@@ -1,6 +1,7 @@
 package com.lovankydev.spring_project_crud_with_sqlserver.configuration;
 
 import com.lovankydev.spring_project_crud_with_sqlserver.enums.Roles;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -24,13 +25,14 @@ import javax.crypto.spec.SecretKeySpec;
 @EnableMethodSecurity
 public class SecurityConfig {
 
-    @Value("${jwt.signerKey}")
-    private String signerKey;
+    @Autowired
+    CustomJWTDecoder customJWTDecoder;
 
     private final String[] PUBLIC_ENDPOINTS = {
             "/users",
             "/auth/token",
-            "/auth/introspect"
+            "/auth/introspect",
+            "/auth/log-out"
     };
 
 
@@ -46,7 +48,7 @@ public class SecurityConfig {
 
         // Configure the application to use JWT for authentication.
         httpSecurity.oauth2ResourceServer(oauth2 ->
-                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(jwtDecoder())
+                oauth2.jwt(jwtConfigurer -> jwtConfigurer.decoder(customJWTDecoder)
                         .jwtAuthenticationConverter( jwtAuthenticationConverter()))
                         .authenticationEntryPoint( new JwtAuthenticationEntryPoint()
         ));
@@ -57,18 +59,6 @@ public class SecurityConfig {
         return httpSecurity.build();
     }
 
-
-    // This method is used to create a JwtDecoder bean that will decode JWT tokens using the specified signing key.
-    @Bean
-    JwtDecoder jwtDecoder() {
-
-        // Create a SecretKeySpec using the signer key and the HS512 algorithm.
-        SecretKeySpec secretKeySpec = new SecretKeySpec(signerKey.getBytes(), "HS512");
-        return NimbusJwtDecoder.withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
-
-    }
 
     // This method is used to convert JWT tokens into Spring Security Authentication objects.
     @Bean

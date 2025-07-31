@@ -14,7 +14,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 @Service
 @RequiredArgsConstructor
@@ -26,26 +25,25 @@ public class RoleService {
     RoleMapper roleMapper;
 
 
-    public RoleResponse creationRoleService(RoleRequest request){
-        Role role =  roleMapper.toRole(request);
+    public RoleResponse creationRoleService(RoleRequest request) {
+        Role role = roleMapper.toRole(request);
 
-        List<Permission> permissions =  permissionRepository.findAllById(request.getPermissions());
+        List<Permission> permissions = permissionRepository.findAllById(request.getPermissions());
 
         role.setPermissions(new HashSet<>(permissions));
 
-         roleRepository.save(role);
-
+        roleRepository.save(role);
 
         return roleMapper.toRoleResponse(role);
     }
 
-    public List<RoleResponse> getAllRoleService(){
-       return roleRepository.findAll().stream()
+    public List<RoleResponse> getAllRoleService() {
+        return roleRepository.findAll().stream()
                 .map(roleMapper::toRoleResponse)
                 .toList();
     }
 
-    public void deleteRoleService(String roleName){
+    public void deleteRoleService(String roleName) {
         roleRepository.deleteById(roleName);
     }
 

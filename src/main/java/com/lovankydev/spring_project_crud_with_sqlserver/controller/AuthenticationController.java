@@ -3,6 +3,7 @@ package com.lovankydev.spring_project_crud_with_sqlserver.controller;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.ApiResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.AuthenticationRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.IntrospectRequest;
+import com.lovankydev.spring_project_crud_with_sqlserver.dto.request.InvalidatedTokenRequest;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.AuthenticationResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.dto.respone.IntrospectResponse;
 import com.lovankydev.spring_project_crud_with_sqlserver.service.AuthenticationService;
@@ -43,6 +44,16 @@ public class AuthenticationController {
         } catch (ParseException e) {
             throw new RuntimeException(e);
         }
+        return apiResponse;
+    }
+
+    @PostMapping("/auth/log-out")
+    public ApiResponse<String> logout(@RequestBody InvalidatedTokenRequest request) throws ParseException, JOSEException {
+        ApiResponse apiResponse = new ApiResponse();
+
+        authenticationService.logoutService(request);
+        apiResponse.setResult("Logout successful");
+
         return apiResponse;
     }
 }
