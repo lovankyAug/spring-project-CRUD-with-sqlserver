@@ -40,7 +40,7 @@ public class UserService {
     PasswordEncoder passwordEncoder = passwordEncoder();
 
     // This method is used to create a new user.
-    public User userCreationService(UserCreationRequest request) {
+    public UserResponse userCreationService(UserCreationRequest request) {
 
         if (userRepository.existsByUserName(request.getUserName())) {
             throw new AppException(ErrorCode.USER_EXISTED);
@@ -54,7 +54,8 @@ public class UserService {
 
         // Encrypt the password before saving.
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        return userRepository.save(user);
+        User userSave = userRepository.save(user);
+        return userMapper.toUserResponse(userSave);
     }
 
 

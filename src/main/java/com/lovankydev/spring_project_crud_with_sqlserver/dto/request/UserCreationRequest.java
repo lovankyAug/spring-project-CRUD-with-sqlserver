@@ -16,7 +16,7 @@ import java.time.LocalDate;
 public class UserCreationRequest {
     String email;
 
-    @Size(min = 3, max = 20, message = "Username requires from 3 to 20 letters for an username. ")
+    @Size(min = 4, max = 20, message = "USERNAME_INVALID")
     String userName;
 
     @JsonFormat(pattern = "yyyy-MM-dd")

@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatusCode;
 
 @Getter
 public enum ErrorCode {
+    USERNAME_INVALID(1009, "Username requires from 4 to 20 letters for an username.", HttpStatus.BAD_REQUEST),
     USER_EXISTED(1001, "User has existed already. Please choose another user name.", HttpStatus.BAD_REQUEST),
     UNCATEGORIZED_EXCEPTION(9999, "Uncategorized exception", HttpStatus.BAD_REQUEST),
     AGE_INVALID(1007, "Your must be at least {min}", HttpStatus.BAD_REQUEST),

@@ -28,7 +28,6 @@ import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.Date;
 import java.util.StringJoiner;
@@ -47,6 +46,14 @@ public class AuthenticationService {
     @NonFinal
     @Value("${jwt.signerKey}")
     protected String SIGNER_KEY;
+
+    @NonFinal
+    @Value("${jwt.valid-duration}")
+    protected long VALID_DURATION;
+
+    @NonFinal
+    @Value("${jwt.refreshable-duration}")
+    protected long REFRESHABLE_DURATION;
 
     // This method is used to authenticate a user by checking their username and password.
     public AuthenticationResponse authenticate(AuthenticationRequest request) {
@@ -70,8 +77,8 @@ public class AuthenticationService {
         boolean isValid = true;
 
         try {
-            verifyToken(token);
-        }catch (AppException exception){
+            verifyToken(token, false);
+        } catch (AppException exception) {
             isValid = false;
         }
 
@@ -81,13 +88,13 @@ public class AuthenticationService {
     }
 
 
-    SignedJWT verifyToken(String token) throws JOSEException, ParseException {
+    SignedJWT verifyToken(String token, boolean isRefresh) throws JOSEException, ParseException {
         if (token == null || token.isEmpty()) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
 
         //Parse the token
-        SignedJWT signedJWT =  SignedJWT.parse(token);
+        SignedJWT signedJWT = SignedJWT.parse(token);
 
         //Create a verifier with the same key used to sign the token
         JWSVerifier verifier = new MACVerifier(SIGNER_KEY.getBytes());
@@ -95,12 +102,16 @@ public class AuthenticationService {
         boolean verified = signedJWT.verify(verifier);
 
         // Check if the token is expired
-        Date expirationTime = signedJWT.getJWTClaimsSet().getExpirationTime();
+        Date expirationTime = (isRefresh)
+                ? new Date(signedJWT.getJWTClaimsSet().getExpirationTime()
+                .toInstant().plus(REFRESHABLE_DURATION, ChronoUnit.SECONDS)
+                .toEpochMilli())
+                : signedJWT.getJWTClaimsSet().getExpirationTime();
 
-        if(!(verified && expirationTime.after(new Date()))){
+        if (!(verified && expirationTime.after(new Date()))) {
             throw new AppException(ErrorCode.UNAUTHENTICATED);
         }
-        if(invalidatedTokenRepository
+        if (invalidatedTokenRepository
                 .existsById(signedJWT.getJWTClaimsSet().getJWTID()))
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
@@ -121,7 +132,7 @@ public class AuthenticationService {
                 .jwtID(UUID.randomUUID().toString())
                 .expirationTime(new Date(
                         // Set the expiration time to 1 hour from now
-                        Instant.now().plus(1, ChronoUnit.HOURS).toEpochMilli()
+                        Instant.now().plus(VALID_DURATION, ChronoUnit.SECONDS).toEpochMilli()
                 ))
                 .issueTime(new Date())
                 .build();
@@ -162,7 +173,7 @@ public class AuthenticationService {
     public void logoutService(InvalidatedTokenRequest request) throws ParseException, JOSEException {
 
         String token = request.getToken();
-        SignedJWT signedJWT = verifyToken(token);
+        SignedJWT signedJWT = verifyToken(token, true);
 
         String jit = signedJWT.getJWTClaimsSet().getJWTID();
         Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
@@ -178,7 +189,7 @@ public class AuthenticationService {
 
         String token = request.getToken();
 
-        SignedJWT signedJWT = verifyToken(token);
+        SignedJWT signedJWT = verifyToken(token, true);
 
         String jit = signedJWT.getJWTClaimsSet().getJWTID();
         Date expiryTime = signedJWT.getJWTClaimsSet().getExpirationTime();
@@ -191,7 +202,7 @@ public class AuthenticationService {
         invalidatedTokenRepository.save(invalidatedToken);
 
         User user = userRepository.findByUserName(userName);
-        if(user == null){
+        if (user == null) {
             throw new AppException(ErrorCode.USER_NOT_FOUND);
         }
 
